@@ -12,8 +12,8 @@ Some of these can be found in the docs folder
 
 ## ROM
 
-Current ROM chip : 9316
-Semi-compatibles: EPROM 2716 and EEPROM 28C16
+ - Current ROM chip : 9316
+ - Semi-compatibles: EPROM 2716 and EEPROM 28C16
 
 9316 and 2716 compatibles on all pins except:
  - 18: CS2 on 9316 | /EP on 2716
@@ -21,8 +21,9 @@ Semi-compatibles: EPROM 2716 and EEPROM 28C16
  - 21: CS3 on 9316 | Vpp on 2716
 
 On Apple II, the Chip Select combination of all ROM chips is 010. CS1 (20) and CS3 (21) should be LOW and CS2 (18) should be up on one ROM chip to be enabled. (UAII p. 136)
+
 On 2716, read is done when /EP (pin 18) and /G (pin 20) are LOW, inhibition is when /G (pin 20) is HIGH or standby when /EP is HIGH (like inhibition but consume less power but ). Vpp (pin 21) shoud be always HIGH (and can also be 25V if programming mode).
-28C16 EEPROM is fully compatible with 2716
+28C16 EEPROM is fully compatible with 2716.
 
 ### Socket adapter
 
@@ -35,8 +36,8 @@ _(In this list, xyz state corespond to pin 18/20/21 state)_
  - Pin 21 may received 25V if TL866II is in programmer mode, and thus may destroy the 9316 chip
  - (With a 9316 on TL866II)  In read mode, TL866II will send 001 but 9316 chip expect 100 -> KO
  - (With a 2716 on Apple II) In read mode, Apple II will send 100 but 2716 expect 001 -> KO
- - (With a 2716 on Apple II) In deselect mode, Apple II will send 111 and 2716 expect *11 to be deselected -> OK
- - (With a 2716 on Apple II) In inhibit mode, Apple II may send 000 but 2716 expect *11 or 1*1 to be deselected -> KO
+ - (With a 2716 on Apple II) In deselect mode, Apple II will send 111 and 2716 expect \*11 to be deselected -> OK
+ - (With a 2716 on Apple II) In inhibit mode, Apple II may send 000 but 2716 expect \*11 or 1\*1 to be deselected -> KO
  - The good news is, pin 20 is ok in all mode
 
 So, to make a 9316 on TL866II adapter:
