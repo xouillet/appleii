@@ -4,16 +4,16 @@
 
 Some of these can be found in the docs folder
 
- - https://mirrors.apple2.org.za/Apple%20II%20Documentation%20Project/Books/W.%20Gayler%20-%20The%20Apple%20II%20Circuit%20Description.pdf
- - https://ia803001.us.archive.org/31/items/understanding_the_apple_ii/understanding_the_apple_ii.pdf (referred by UAII in this doc)
- - https://downloads.reactivemicro.com/Apple%20II%20Items/Hardware/II_&_II+/Schematic/
+ - https://mirrors.apple2.org.za/Apple%20II%20Documentation%20Project/Books/W.%20Gayler%20-%20The%20Apple%20II%20Circuit%20Description.pdf ([repo copy](docs/W.%20Gayler%20-%20The%20Apple%20II%20Circuit%20Description.pdf))
+ - https://ia803001.us.archive.org/31/items/understanding_the_apple_ii/understanding_the_apple_ii.pdf (referred by UAII in this doc) ([repo copy](docs/understanding_the_apple_ii.pdf))
+ - https://downloads.reactivemicro.com/Apple%20II%20Items/Hardware/II_&_II+/Schematic/ ([repo copy](docs/Apple%20II%20Schematics.pdf))
  - http://www.willegal.net/appleii/appleii-repair.htm
 
 
 ## ROM
 
- - Current ROM chip : 9316
- - Semi-compatibles: EPROM 2716 and EEPROM 28C16
+ - Current ROM chip : 9316 ([datasheet](docs/ROM9316.pdf))
+ - Semi-compatibles: EPROM 2716 and EEPROM 28C16 ([datasheet](docs/2716.pdf))
 
 9316 and 2716 compatibles on all pins except:
  - 18: CS2 on 9316 | /EP on 2716
