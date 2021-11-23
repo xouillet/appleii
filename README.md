@@ -25,6 +25,11 @@ On Apple II, the Chip Select combination of all ROM chips is 010. CS1 (20) and C
 On 2716, read is done when /EP (pin 18) and /G (pin 20) are LOW, inhibition is when /G (pin 20) is HIGH or standby when /EP is HIGH (like inhibition but consume less power but ). Vpp (pin 21) shoud be always HIGH (and can also be 25V if programming mode).
 28C16 EEPROM is fully compatible with 2716.
 
+### Dumps
+
+Using socket adapter described below, I've dumped all the ROM chips present in the Apple ][ to validate them against
+binary Apple II ROM image. Dumps are located in `dumprom/` folder.
+
 ### Socket adapter
 
 With those info we can create our socket adapter.
@@ -44,6 +49,10 @@ So, to make a 9316 on TL866II adapter:
  - In this mode, we will force CS as the correct value, except pin 20 that is correct (we will have deselect support, even if this is not really important)
  - Cut pin 21 and connect dangling port to expected state (LOW, ie port 12)
  - Cut pin 18 and connect dangling port to expected state (HIGH, i.e. port 24)
+
+![](pics/9316_adapt_1.jpg)
+![](pics/9316_adapt_2.jpg)
+![](pics/9316_adapt_3.jpg)
 
 And to make a 2716 on Apple II adapter:
  - Pin 21 can be forced to high (not doing so will put 2716 in unexpected state)
