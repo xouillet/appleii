@@ -40,6 +40,21 @@ Some of these can be found in the docs folder
 
 [![](pics/thumb/eprom_mb.jpg)](pics/eprom_mb.jpg)
 
+  - 2021-11-24: Created a RAM test bench and tested many RAM chips
+
+[![](pics/thumb/ram_test_bench_1.jpg)](pics/ram_test_bench_1.jpg)
+[![](pics/thumb/ram_test_bench_2.jpg)](pics/ram_test_bench_2.jpg)
+
+  - 2021-11-24: After testing OK 24 chips of RAM, installed them. It kinda started \o/
+
+[![](pics/thumb/boot_semiok.jpg)](pics/boot_semiok.jpg)
+
+  - 2021-11-24: From there I can go to monitor a check that my F0 EPROM chip is working OK
+
+[![](pics/thumb/monitor_f0.jpg)](pics/monitor_f0.jpg)
+
+  - 2021-11-24: But all is buggy (display is duplicated, sometimes boot doesn't happen). A way to reproduce a crash is to write to 0x820... I'll take a look why later
+
 
 ## ROM
 
@@ -111,3 +126,19 @@ minipro -p M2716@DIP24 -w GOODF0.bin
  - UAII (chapter 6, p. 149 for socket adapter)
  - http://www.willegal.net/appleii/appleii-integer.htm
  - 9316 -> 2716 mapping (i.e. to read Apple II rom on TL866II) :  https://www.mikesarcade.com/cgi-bin/spies.cgi?action=url&type=info&page=9316.txt
+
+## RAM
+
+RAM chip on the Apple II are 4116 ([datasheet](docs/4116.pdf)). Each chip stores 16 kibits, i.e. 2 kibytes per chip. On the motherboard there is 3 rows of 8 chip socket (16 kibytes per row, maximum 48 kibytes for all the Apple II).
+
+Inside the chip, the memory is viewed as an array of 128\*128\*1bit, i.e. 2\*\*7=128 rows, 2\*\*7=128 columns, and each row/column correspond to a bit.
+
+On the chip, we have 7 pin for the address (that is the row or column id), RAS and CAS pin that will tell if the address pins are used to set column or row id, a R/W pin and data IN and OUT pins (as we store bit only 1 data pin for each direction). And for more fun, 4 power pin, 5V, 12V, -5V and GND...
+
+### RAM tester
+
+With that in mind we can easily write a RAM chip tester with an arduino. The tester will write random data to each address and try to read it afterwards.
+
+A problem that may appears is to have power source for +5V, +12V and -5V. As it is designed for this, we can use the Apple II power supply.
+
+RAM test code is available in `ramtester/` folder.
