@@ -9,6 +9,37 @@ Some of these can be found in the docs folder
  - https://downloads.reactivemicro.com/Apple%20II%20Items/Hardware/II_&_II+/Schematic/ ([repo copy](docs/Apple%20II%20Schematics.pdf))
  - http://www.willegal.net/appleii/appleii-repair.htm
 
+## Timeline
+
+  - 2021-11-20: Wrote ROM section of this README, with socket adapter description
+  - 2021-11-23: Created my 9136 socket adapter to dump current ROMs
+
+[![](pics/thumb/9316_adapt_1.jpg)](pics/9316_adapt_1.jpg)
+[![](pics/thumb/9316_adapt_2.jpg)](pics/9316_adapt_2.jpg)
+[![](pics/thumb/9316_adapt_3.jpg)](pics/9316_adapt_3.jpg)
+
+  - 2021-11-23: Dumped all the ROMs and compared it to binary found on the net. At first sight:
+
+    - ROM D0 is OK
+    - ROM D8 is OK
+    - ROM E0 is OK
+    - ROM E8 is OK
+    - ROM F0 is KO
+    - ROM F8 is OK
+
+  - 2021-11-23: Retried reading F0 and every read attempt leads to a different bin. ROM chip is not consistent anymore, it's dead. It's a good lead !
+  - 2021-11-24: Created my 2716 socket adapter to put EPROM on the Apple II motherboard
+
+[![](pics/thumb/2716_adapt.jpg)](pics/2716_adapt.jpg)
+
+  - 2021-11-24: Flashed the EPROM. As my TL866II didn't support 25V on VPP pin, I've had to use external power supply
+
+[![](pics/thumb/flash_eprom.jpg)](pics/flash_eprom.jpg)
+
+  - 2021-11-24: Inserted F0 EPROM with adapter on the motherboard, still no luck :(. Well it was necessary anyway as F0 chip was not consistent.
+
+[![](pics/thumb/eprom_mb.jpg)](pics/eprom_mb.jpg)
+
 
 ## ROM
 
@@ -30,17 +61,6 @@ On 2716, read is done when /EP (pin 18) and /G (pin 20) are LOW, inhibition is w
 Using socket adapter described below, I've dumped all the ROM chips present in the Apple ][ to validate them against
 binary Apple II ROM image. Dumps are located in `dumprom/` folder.
 
-At first sight:
-
- - ROM D0 is OK
- - ROM D8 is OK
- - ROM E0 is OK
- - ROM E8 is OK
- - ROM F0 is KO
- - ROM F8 is OK
-
-After further testing, rom F0 doesn't dump the same thing after each read. The rom chip is probably dead, it's a good lead !!
-
 ### Socket adapter
 
 With those info we can create our socket adapter.
@@ -61,10 +81,6 @@ So, to make a 9316 on TL866II adapter:
  - Cut pin 21 and connect dangling port to expected state (LOW, ie port 12)
  - Cut pin 18 and connect dangling port to expected state (HIGH, i.e. port 24)
 
-![](pics/9316_adapt_1.jpg)
-![](pics/9316_adapt_2.jpg)
-![](pics/9316_adapt_3.jpg)
-
 And to make a 2716 on Apple II adapter:
  - Pin 21 can be forced to high (not doing so will put 2716 in unexpected state)
  - The good news is, pin 20 is ok for all cases
@@ -83,6 +99,11 @@ yay -S minipro
 Reading:
 ```
 minipro -p M2716@DIP24 -r out.bin
+```
+
+Writing:
+```
+minipro -p M2716@DIP24 -w GOODF0.bin
 ```
 
 ### References
