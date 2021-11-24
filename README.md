@@ -30,6 +30,17 @@ On 2716, read is done when /EP (pin 18) and /G (pin 20) are LOW, inhibition is w
 Using socket adapter described below, I've dumped all the ROM chips present in the Apple ][ to validate them against
 binary Apple II ROM image. Dumps are located in `dumprom/` folder.
 
+At first sight:
+
+ - ROM D0 is OK
+ - ROM D8 is OK
+ - ROM E0 is OK
+ - ROM E8 is OK
+ - ROM F0 is KO
+ - ROM F8 is OK
+
+After further testing, rom F0 doesn't dump the same thing after each read. The rom chip is probably dead, it's a good lead !!
+
 ### Socket adapter
 
 With those info we can create our socket adapter.
