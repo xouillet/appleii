@@ -1,37 +1,26 @@
-; MCS 6502 MEMORY TEST
-;
-	!cpu 6502
-	!set apple2 = 1
-;	!set apple1 = 1
-!ifdef apple1 {
-	!to "a1mt.txt"   	;output file in apple command format
-}
-!ifdef apple2 {
-	!to "a2mt.txt"   	;output file in apple command format
-}
 ; MACROS
 ;
 ; INITIALIZE ADDRESS WITH START
-	!macro INI_ADDRS {	
+  .macro INI_ADDRS
 	LDA START
-        STA ADDRS
-        LDA START + $01
-        STA ADDRS + $01
-}
+    STA ADDRS
+    LDA START + $01
+    STA ADDRS + $01
+  .endm
 
 ; INCREMENT ADDRESS
-	!macro INC_ADDRSC {
+  .macro INC_ADDRSC
 	INC ADDRS
 	BNE .SKIP_HI
 	INC ADDRS+$01
- .SKIP_HI
+.SKIP_HI:
 	LDA END
 	CMP ADDRS
 	BNE .EXIT2
 	LDA END+$01
 	CMP ADDRS+$01
- .EXIT2
-}
+.EXIT2:
+  .endm
 
 ; SET TEST PATTERN
 ; only for tests 4 and 5 (address in address tests), make addres High or Low 
@@ -39,42 +28,30 @@
 ; test 4 is LSB of address
 ; test 5 is MSB of address
 ; 
-	!macro 	SET_PATRN 	{
+  .macro SET_PATRN
 	CPY	#4
 	BNE 	.TEST5
 	LDA	ADDRS
 	STA	TEST_PATRN 
-.TEST5
+.TEST5:
 	CPY	#5
 	BNE 	.EXIT1
 	LDA	ADDRS+$01
 	STA	TEST_PATRN 
-.EXIT1	
-}
+.EXIT1:
+  .endm
 
 ; ZERO PAGE LOCATIONS
 	*=$0
-!ifdef apple2 {
-START     !byte $0,$0a 	;USER ENTERS START OF MEMORY RANGE min is 38
-END       !byte $0,$40 	;USER ENTERS END OF MEMORY RANGE
-} 
-!ifdef apple1 {
-START     !byte $0,$5 	;USER ENTERS START OF MEMORY RANGE min is 8
-END       !byte $0,$10  ;USER ENTERS END OF MEMORY RANGE
-}
-ADDRS 	!byte $0,$0		; 2 BYTES - ADDRESS OF MEMORY
-TEST_PATRN 	!byte 0      	; 1 BYTE - CURRENT TEST PATTERN
-PASSES       !byte $0 ;NUMBER of PASSES
+START     .byte $0,$0a 	;USER ENTERS START OF MEMORY RANGE min is 38
+END       .byte $0,$40 	;USER ENTERS END OF MEMORY RANGE
+ADDRS 	.byte $0,$0		; 2 BYTES - ADDRESS OF MEMORY
+TEST_PATRN 	.byte 0      	; 1 BYTE - CURRENT TEST PATTERN
+PASSES       .byte $0 ;NUMBER of PASSES
 ;
 ; start of program
 ; start at $800 for apple 2
-!ifdef apple2 {
 	*=$800
-}
-; start at $280 for apple 1
-!ifdef apple1 {
-	*=$280
-}
 ; TESTS TYPE
 ;	0 = all zeros
 ;	1 = all ones
@@ -94,28 +71,28 @@ REPEAT
 	STA TEST_PATRN   	; first pass all zeros
 ;
 NX_PASS
-	+INI_ADDRS
+	INI_ADDRS
 ;
 LOOP1
-	+SET_PATRN		; sets up TEST_PATRN for address in address test
+	SET_PATRN		; sets up TEST_PATRN for address in address test
 	LDA	TEST_PATRN
 	STA 	(ADDRS, X) 	; STORE PATTERN
 	LDA 	(ADDRS, X) 	; READ (save result of read in case of error)
 	CMP	TEST_PATRN	; CHECK
 	BNE 	LOOP_ERR2 	; branch if error
-	+INC_ADDRSC
+	INC_ADDRSC
 	BNE 	LOOP1
 ;
 CK_PATRN 
-	+INI_ADDRS 	; INITIALISE ADDRS
+	INI_ADDRS 	; INITIALISE ADDRS
 ;
 LOOP2	
-	+SET_PATRN		; sets up TEST_PATRN for address in address test
+	SET_PATRN		; sets up TEST_PATRN for address in address test
 	LDA 	(ADDRS, X) 	; READ  (save result of read in case of error)
 	CMP	TEST_PATRN	; CHECK
 LOOP_ERR2
 	BNE 	LOOP_ERR	; branch if error
-	+INC_ADDRSC
+	INC_ADDRSC
 	BNE LOOP2
 ;
 ; Pass Complete - see what is next
@@ -222,37 +199,20 @@ LOOP_ERR
       JSR	PRINT_CRLF
 
 FINISHED
-!ifdef apple2 {
 ;
 ; apple II brk
 ;
 	brk
 	nop
 	nop
-}
-!ifdef apple1 {
-
-;
-; apple 1
-;
-	jmp	$FF00
-}
-
 
 ; ROUTINE TO WRITE AN ASCII CHAR.
 ;ROM_LINK change to character out routine for your platform
 WRITE
 
-!ifdef apple2 {
 ; Apple II version here
 	ORA	#$80   
 	JSR	$fdf0
-}
-
-!ifdef apple1 {
-; Apple 1 version here
-	JSR	$FFEF
-}
 	RTS
 
 ; PRINT HEX BYTE
