@@ -4,7 +4,7 @@
 
 Some of these can be found in the docs folder
 
- - https://mirrors.apple2.org.za/Apple%20II%20Documentation%20Project/Books/W.%20Gayler%20-%20The%20Apple%20II%20Circuit%20Description.pdf ([repo copy](docs/W.%20Gayler%20-%20The%20Apple%20II%20Circuit%20Description.pdf))
+ - https://mirrors.apple2.org.za/Apple%20II%20Documentation%20Project/Books/W.%20Gayler%20-%20The%20Apple%20II%20Circuit%20Description.pdf (referred by AIICD in this doc) ([repo copy](docs/W.%20Gayler%20-%20The%20Apple%20II%20Circuit%20Description.pdf))
  - https://ia803001.us.archive.org/31/items/understanding_the_apple_ii/understanding_the_apple_ii.pdf (referred by UAII in this doc) ([repo copy](docs/understanding_the_apple_ii.pdf))
  - https://downloads.reactivemicro.com/Apple%20II%20Items/Hardware/II_&_II+/Schematic/ ([repo copy](docs/Apple%20II%20Schematics.pdf))
  - http://www.willegal.net/appleii/appleii-repair.htm
@@ -54,6 +54,15 @@ Some of these can be found in the docs folder
 [![](pics/thumb/monitor_f0.jpg)](pics/monitor_f0.jpg)
 
   - 2021-11-24: But all is buggy (display is duplicated, sometimes boot doesn't happen). A way to reproduce a crash is to write to 0x820... I'll take a look why later
+  - 2021-12-01: After trying to load data from cassette port via https://github.com/datajerk/c2t (that works btw !), I've seen that whenever we are writing to 0x1100, 0x1000 is overwritten with the same value
+    
+    - After multiple tries, I've managed to find that A8 pin from the 6502 is ignored when accessing the RAM, but not when accessing the ROM, so the problem lies in RAM address multiplexing
+    - After reading RAM multiplexing (UAII p. 98 and AIICD p. 201), I've seen that the CPU A8 pin is used for the row of RA3 ram line. Corresponding column line for RA3 is A11. I've tested if A11 is ignored as well, and the answer is yes ! (e.g. 0x2446, 0x2546, 0x2C46 and 0x2D46 have the same value). I've got a problem with my RA3 line
+    - Using a logic analyser, I've tested the output lines of the E11, E12 and E13 74LS153 multiplexor. As expected, output 9 of E11 (RA3) is down. With a continuity tester, I've validated that the RA3 line is correctly connected to the RAM chip, and yes it is (the motherboard is ok).
+    - I've tried to exchange 2 E12 and E11 and behaviour changed. With the analyser, I've seen that the former E11 chip now in E12 still has nothing on the output 9. That is my problem, I've to replace this chip...
+    - There is another 74LS153 on the Apple II motherboard, in C0. And it does not use its output 9... But when I swapped, nothing happened at all, maybe my faulty 74LS153 is more than faulty only on its output 9... Anyway, will try to order multiplexer to replace, I've very confident that this will greatly improves stability !
+
+[![](pics/thumb/debugging_ram.jpg)](pics/debugging_ram.jpg)
 
 
 ## ROM
