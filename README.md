@@ -64,6 +64,12 @@ Some of these can be found in the docs folder
 
 [![](pics/thumb/debugging_ram.jpg)](pics/debugging_ram.jpg)
 
+  - 2021-12-03: As expected, after replacing 74LS153 chip in E11, everything is fine ! I've put all tested RAM chips to have 48ko on the Apple II and ran the memtester in asm. Binary code was transfered over cassette port via `c2t` software. I've also tested Apple Invaders it works as well !
+
+
+[![](pics/thumb/ramtest_ok.jpg)](pics/ramtest_ok.jpg)
+[![](pics/thumb/apple_invaders.jpg)](pics/apple_invaders.jpg)
+
 
 ## ROM
 
