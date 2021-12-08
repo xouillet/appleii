@@ -10,5 +10,5 @@ for line in open(sys.argv[1], "r"):
         ba = bytearray([int(e, 16) for e in m.group(2).split()])
         code[addr : addr + len(ba)] = ba
 
-with open("b.out", "wb") as f:
+with open(f"{sys.argv[1]}.bin", "wb") as f:
     f.write(code)
