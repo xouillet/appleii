@@ -16,24 +16,25 @@ COUT1       equ     $FDF0
 INIT
             ldy     STARTH      ; init CUR with START
             sty     CURH
-            ldy     STARTL
+            ldy     #0
             sty     CURL
-            ldy     #0          ; y always 0, incr in CUR
+            ldy     STARTL
 LOOP1
             eor     (CURL),y    ; EOR
             ldx     CURH        ; is last page ?
             cpx     ENDH
             bcs     LASTPAGE    ; yes -> LASTPAGE
-            inc     CURL        ; increment CUR on 16 bits
+            iny
             bne     LOOP1
             inc     CURH
             jmp     LOOP1
 LASTPAGE
-            inc     CURL        ; last page
-            ldx     CURL        ; test CURL <= ENDL
-            cpx     ENDL
+            iny
+            beq     EXIT        ; last iter when CURL==$FF gives 0 -> EXIT
+            cpy     ENDL
             bcc     LOOP1       ; <
             beq     LOOP1       ; =
+EXIT
             sta     RES         ; store result
             jsr     COUTBYTE    ; and print
             rts
