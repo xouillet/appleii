@@ -1,6 +1,6 @@
 ; Will do an EOR on a memory range
-; Usage: to do between 2A0 and 2DE
-; FA: A0 02 DE 02
+; Usage: to do between 2A0 and 2E5
+; FA: A0 02 E5 02
 ; 
 
 STARTL      equ     $FA
