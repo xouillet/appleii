@@ -1,5 +1,6 @@
 ramtester/build-uno
-
 asm/*.out
 asm/*.bin
+asm/*.lst
+asm/*.log
 asm/.vars
