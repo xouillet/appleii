@@ -4,7 +4,7 @@ PLAYER?=mpv
 OPT?=
 
 %.bin: %.s
-	$(VASM) $(OPT) -quiet -Fbin -o "$@" "$<"
+	$(VASM) $(OPT) -quiet -Fbin -L $(<:.s=.lst) -o "$@" "$<"
 
 play_%.bin: %.bin
 	$(C2T) -2 -p $<,2a0 | $(PLAYER) - --pause
