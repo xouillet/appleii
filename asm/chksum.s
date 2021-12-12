@@ -14,31 +14,30 @@ COUT1       equ     $FDF0
 
             org     $2A0
 INIT
-            ldy     STARTH
+            ldy     STARTH      ; init CUR with START
             sty     CURH
             ldy     STARTL
             sty     CURL
-            ldy     #0
+            ldy     #0          ; y always 0, incr in CUR
 LOOP1
-            eor     (CURL),y
-            ldx     CURH
+            eor     (CURL),y    ; EOR
+            ldx     CURH        ; is last page ?
             cpx     ENDH
-            bcs     LASTPAGE
-            inc     CURL
+            bcs     LASTPAGE    ; yes -> LASPAGE
+            inc     CURL        ; increment CUR on 16 bits
             bne     LOOP1
             inc     CURH
             jmp     LOOP1
 LASTPAGE
-            inc     CURL
-            ldx     CURL
+            inc     CURL        ; last page
+            ldx     CURL        ; test CURL <= ENDL
             cpx     ENDL
-            bcc     LOOP1
-            beq     LOOP1
-            sta     RES
-            jsr     COUTBYTE
+            bcc     LOOP1       ; <
+            beq     LOOP1       ; =
+            sta     RES         ; store result
+            jsr     COUTBYTE    ; and print
             rts
 COUT4
-            and     #$0F
             ora     #$B0        ; convert to ASCII for number
             cmp     #$BA        ; > BA (3A|80) -> not number but [A-F], need to add 6
             bcc     .L1
@@ -47,14 +46,13 @@ COUT4
             jsr     COUT1
             rts
 COUTBYTE
-            pha
-            pha
+            pha                 ; push A for low nibble
+            lsr                 ; >> 4
             lsr
             lsr
             lsr
-            lsr
-            jsr     COUT4
+            jsr     COUT4       ; display high nibble
             pla
-            jsr     COUT4
-            pla
+            and     #$0F
+            jsr     COUT4       ; display low nibble
             rts
