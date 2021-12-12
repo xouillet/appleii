@@ -1,7 +1,7 @@
 ; Will do an EOR on a memory range
 ; Usage: to do between 2A0 and 2E5
 ; FA: A0 02 E5 02
-; 
+;
 
 STARTL      equ     $FA
 STARTH      equ     $FB
@@ -14,30 +14,26 @@ COUT1       equ     $FDF0
 
             org     $2A0
 INIT
-            lda     #0
-            sta     CURL
-            sta     RES
-            ldx     STARTH
-            stx     CURH
+            ldy     STARTH
+            sty     CURH
             ldy     STARTL
+            sty     CURL
+            ldy     #0
 LOOP1
+            eor     (CURL),y
             ldx     CURH
             cpx     ENDH
-            bcs     LASTLOOP    ; branch for lastloop
-
-            eor     (CURL),y
-
-            iny                 ; next byte
-            bne     LOOP1       ;
-            inc     CURH        ; next page
+            bcs     LASTPAGE
+            inc     CURL
+            bne     LOOP1
+            inc     CURH
             jmp     LOOP1
-LASTLOOP    
-            eor     (CURL),y
-
-            iny                 ; next byte
-            cpy     ENDL
-            bcc     LASTLOOP
-FINISH
+LASTPAGE
+            inc     CURL
+            ldx     CURL
+            cpx     ENDL
+            bcc     LOOP1
+            beq     LOOP1
             sta     RES
             jsr     COUTBYTE
             rts
@@ -45,9 +41,9 @@ COUT4
             and     #$0F
             ora     #$B0        ; convert to ASCII for number
             cmp     #$BA        ; > BA (3A|80) -> not number but [A-F], need to add 6
-            bcc     COUTN
+            bcc     .L1
             adc     #$06
-COUTN
+.L1
             jsr     COUT1
             rts
 COUTBYTE
