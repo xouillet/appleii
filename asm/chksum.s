@@ -23,7 +23,7 @@ LOOP1
             eor     (CURL),y    ; EOR
             ldx     CURH        ; is last page ?
             cpx     ENDH
-            bcs     LASTPAGE    ; yes -> LASPAGE
+            bcs     LASTPAGE    ; yes -> LASTPAGE
             inc     CURL        ; increment CUR on 16 bits
             bne     LOOP1
             inc     CURH
