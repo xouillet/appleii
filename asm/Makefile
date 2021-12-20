@@ -7,7 +7,7 @@ OPT?=
 	$(VASM) $(OPT) -quiet -Fbin -L $(<:.s=.lst) -o "$@" "$<"
 
 play_%.bin: %.bin
-	$(C2T) -2 -p $<,2a0 | $(PLAYER) - --pause
+	$(C2T) -2 -w $<,280 | $(PLAYER) - --pause
 
 
 target = $(patsubst %.s,%.bin,$(wildcard *.s))
