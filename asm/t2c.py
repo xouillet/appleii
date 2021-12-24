@@ -1,66 +1,129 @@
+import argparse
+import logging
 import wave
+import sys
 
-w = wave.open("pipo.wav")
+logger = logging.getLogger()
 
-c = 0
 
-last = None
+def parse_wav(fd, framerate, samplewidth, is_wav):
 
-laststate, state = -1, -1  # 0: header, 1: data, 2: sync
+    out = []
+    data = None
 
-out = bytearray()
-b = 0
-cb = 0
+    lastbinsample = None
+    us_lastbinsample = 0
 
-while True:
-    sample = w.readframes(1)
-    if not sample:
-        break
+    laststate, state = -1, -1  # 0: header, 1: data, 2: sync, 3:end
 
-    binsample = round(ord(sample) / (0xFF * w.getsampwidth()))
-    if last is None:
-        last = binsample
+    byte = byte_counter = 0
 
-    if binsample != last:
-        if binsample == 1:
-            if c >= 600:
-                state = 0
-            elif c <= 150:
-                state = 2
-            else:
-                state = 1
-                if c >= 375:
-                    bit = 1
-                else:
-                    bit = 0
+    while True:
+        if is_wav:
+            sample = fd.readframes(1)
+        else:
+            sample = fd.read(samplewidth // 8)
 
-                b = (b << 1) + bit
-                cb += 1
-                if cb == 8:
-                    out.append(b)
-                    b = 0
-                    cb = 0
+        if not sample:
+            break
 
-        if state != laststate:
-            print(f"{w.tell()} -> {state}")
-            print(c)
+        binsample = round(
+            int.from_bytes(sample, byteorder="little") / (2 ** (samplewidth))
+        )
+        if lastbinsample is None:
+            lastbinsample = binsample
 
-        c = 0
+        if binsample != lastbinsample:
+            if binsample == 1:
+                if us_lastbinsample >= 600:
+                    state = 0
+                elif us_lastbinsample <= 200:
+                    state = 2
+                elif us_lastbinsample > 200:
+                    state = 1
 
-    last = binsample
-    laststate = state
-    c += 1e6 / w.getframerate()
+                if state != laststate:
+                    logger.info(f"{w.tell()} -> {state}")
+                    if state == 1:
+                        data = bytearray()
+                        byte = byte_counter = 0
+                    elif laststate == 1:
+                        data, cksum = checksum(data)
+                        if data:
+                            out.append(data)
 
-eor = 0xFF
-for e in out[:-1]:
-    print(hex(e), end=" ")
-    eor ^= e
-print("")
+                if state == 1:
+                    if us_lastbinsample >= 375:
+                        bit = 1
+                    else:
+                        bit = 0
 
-if eor == out[-1]:
-    print("Checksum ok !")
-else:
-    print(f"Checksum bad :(, expected {hex(out[-1])} got {hex(eor)}")
+                    byte = (byte << 1) + bit
+                    byte_counter += 1
+                    if byte_counter == 8:
+                        data.append(byte)
+                        byte = byte_counter = 0
 
-with open("out.bin", "wb") as f:
-    f.write(out[:-1])
+            us_lastbinsample = 0
+
+        lastbinsample = binsample
+        laststate = state
+
+        us_lastbinsample += 1e6 / framerate
+
+    data, cksum = checksum(data)
+    if data:
+        out.append(data)
+
+    return out
+
+
+def checksum(data):
+    if not data:
+        return None, None
+
+    eor = 0xFF
+    for byte in data[:-1]:
+        eor ^= byte
+
+    ok = eor == data[-1]
+    if not ok:
+        logger.error(f"Checksum bad :(, expected {hex(data[-1])} got {hex(eor)}")
+
+    return data[:-1], ok
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+
+    parser = argparse.ArgumentParser(description="t2c -- tape to code")
+    group_mutex = parser.add_mutually_exclusive_group()
+    group_mutex.add_argument("-w", "--wav", metavar="wav", type=str, help="wave file")
+    group_mutex.add_argument(
+        "-i", "--raw", metavar="rawfile", type=str, help="rawfile file"
+    )
+    parser.add_argument(
+        "-r", "--rate", metavar="rate", type=int, help="rate in Hz for raw"
+    )
+    parser.add_argument(
+        "-s",
+        "--samplewidth",
+        metavar="witdh",
+        type=int,
+        help="samplewidth in bits for raw",
+    )
+
+    args = parser.parse_args()
+
+    if args.raw and not (args.rate and args.samplewidth):
+        logger.error("Please specify sample rate and sample width for raw")
+        sys.exit(1)
+
+    if args.wav:
+        w = wave.open(args.wav)
+        out = parse_wav(w, w.getframerate(), w.getsampwidth() * 8, True)
+    else:
+        w = open(args.raw, "rb")
+        out = parse_wav(w, args.rate, args.samplewidth, False)
+
+    print("\n".join([e.hex() for e in out]))
